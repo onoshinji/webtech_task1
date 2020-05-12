@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1>見出し</h1>
+      <% require 'pg' %>
+      <% connection = PG::connect(dbname: "goya") %>
+      <% connection.internal_encoding = "UTF-8" %>
+
+      <% result = connection.exec("select give_for ,weight from crops where give_for != '自家消費';") %>
+      <% data = [] %>
+      <% result.each do |record| %>
+      <%  data << "譲渡先：#{record["give_for"]} 重さ#{record["weight"]}"%>
+      <% end %>
+
+      <% result2 = connection.exec("select quality ,weight from crops where quality = 'false';") %>
+      <% data2 = [] %>
+      <% result2.each do |record| %>
+      <%  data2 << "品質：#{record["quality"]} 重さ#{record["weight"]}"%>
+      <% end %>
+      <form action="goya2.cgi" method="POST">
+         下記のボタンを押すと、自家消費以外で誰にあげたかを確認するページに飛びます<br><br>
+        <input type="text" name="goya2" value="<%= data.join(' ') %>">
+        <input type="submit" name="送信" >
+      </form>
+        <p>--------------------------------------------------------</p>
+      <form action="goya3.cgi" method="POST">
+         下記のボタンを押すと、品質がfalseのゴーヤを確認するページに飛びます<br><br>
+        <input type="text" name="goya3" value="<%= data2.join(' ') %>">
+        <input type="submit" name="送信" >
+      </form>
+  </body>
+</html>
